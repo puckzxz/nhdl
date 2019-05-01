@@ -56,7 +56,7 @@ func (g *gallery) GetSize() {
 */
 func (g *gallery) GetImages() {
 	fmt.Printf("Getting all the images in the gallery...\n")
-	fmt.Printf("This make take a bit...\n")
+	fmt.Printf("This may take a bit...\n")
 	c := colly.NewCollector(
 		colly.Async(true),
 	)
