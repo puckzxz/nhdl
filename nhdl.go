@@ -17,16 +17,17 @@ import (
 // TODO: Add progress bars?
 // TODO: Add proxies to circumvent possible bans?
 
-type gallery struct {
-	ID         string
-	URL        string
-	Size       int
-	Images     []string
-	FolderPath string
+// Gallery holds data about the nhentai gallery and where to download it
+type Gallery struct {
+	ID         string 	// The ID of the gallery
+	URL        string 	// The URL to the gallery
+	Size       int 		// The amount of pages in the gallery
+	Images     []string // The direct image URL's to all the images in the gallery
+	FolderPath string 	// The folder on the drive where the gallery should be downloaded to
 }
 
-// Gets the amount of images in our gallery
-func (g *gallery) GetSize() {
+// GetSize gets the amount of images in the gallery
+func (g *Gallery) GetSize() {
 	fmt.Printf("Getting the size of the %s...\n", g.ID)
 	c := colly.NewCollector(
 		colly.Async(true),
@@ -43,7 +44,7 @@ func (g *gallery) GetSize() {
 	g.Size = len(pageURLS)
 }
 
-// Gets the direct image URL to the images in our gallery
+// GetImages gets the direct image URL to all the images in the gallery
 /*
 	Unfortunately the slowest function in this program and needs improvement
 	We have to visit every image in the gallery to get the direct link to the image
@@ -51,11 +52,11 @@ func (g *gallery) GetSize() {
 	We can't just get the first image and use the server ID it's hosted on for all other images
 	Ex. https://i.nhentai.net/galleries/<id>/<file>.jpg
 	For larger galleries the ID will sometimes change
-	The image extension will also sometimes change at random in the gallery, we could have 1.jpg then 12.png
+	The image extension will also sometimes change at random in the Gallery, we could have 1.jpg then 12.png
 	With nhentai placing harsher restrictions on scraping we have to slow down even more so we don't get banned
 */
-func (g *gallery) GetImages() {
-	fmt.Printf("Getting all the images in the gallery...\n")
+func (g *Gallery) GetImages() {
+	fmt.Printf("Getting all the images in the Gallery...\n")
 	fmt.Printf("This may take a bit...\n")
 	c := colly.NewCollector(
 		colly.Async(true),
@@ -72,11 +73,11 @@ func (g *gallery) GetImages() {
 	}
 }
 
-// Downloads our gallery
-func (g *gallery) Download() {
+// Download downloads the gallery
+func (g *Gallery) Download() {
 	g.GetSize()
 	g.GetImages()
-	fmt.Printf("Downloading %d images from gallery %s...\n", g.Size, g.ID)
+	fmt.Printf("Downloading %d images from Gallery %s...\n", g.Size, g.ID)
 	if _, err := os.Stat(g.FolderPath); os.IsNotExist(err) {
 		err = os.Mkdir(g.FolderPath, 0777)
 		if err != nil {
@@ -110,12 +111,12 @@ func (g *gallery) Download() {
 		}(image, fname, &wg)
 	}
 	wg.Wait()
-	fmt.Printf("Downloaded gallery %s to %s\n", g.ID, g.FolderPath)
+	fmt.Printf("Downloaded Gallery %s to %s\n", g.ID, g.FolderPath)
 }
 
 func main() {
 	currentDir, _ := os.Getwd()
-	id := flag.String("id", "", "The magic numbers of the gallery you want to download. (Required)")
+	id := flag.String("id", "", "The magic numbers of the Gallery you want to download. (Required)")
 	dlPath := flag.String("path", currentDir, "Where to put the folder containing the files, defaults to the current directory.")
 	flag.Usage = func() {
 		flag.PrintDefaults()
@@ -124,7 +125,7 @@ func main() {
 	if *id == "" {
 		log.Fatal("[!] You must supply the magic numbers!")
 	}
-	g := &gallery{}
+	g := &Gallery{}
 	g.ID = *id
 	g.URL = fmt.Sprintf("https://nhentai.net/g/%s/", g.ID)
 	g.FolderPath = fmt.Sprintf(`%s\%s`, *dlPath, g.ID)
