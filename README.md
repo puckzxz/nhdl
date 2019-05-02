@@ -6,8 +6,6 @@ Download galleries directly from the nhentai website
 
 This project uses [Colly](https://github.com/gocolly/colly) for web scraping
 
-To install it run `make dep`
-
 ## Usage
 
 `nhdl.exe -id <gallery ID>`
